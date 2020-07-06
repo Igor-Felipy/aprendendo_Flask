@@ -8,9 +8,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///estudantes.sqlite3'
 
 @app.route('/')
 def index():
-    estudantes = Estudante.query.all()
-    result = [e.to_dict() for e in estudantes]
+    """estudantes = Estudante.query.all()
+    result = [e.to_dict('id','nome','idade') for e in estudantes]"""
+    rows = db.session.execute("select id, nome, idade from  estudante").fetchall()
+    result = [dict(r) for r in rows]
     return Response(response=json.dumps(result), status=200, content_type="application/json")
+
+
+
+
+@app.route('/view/<int:id>', methods=['GET'])
+def view(id):
+    row = db.session.execute("select * from estudante where id = %s" % id).fetchone()
+    return Response(response=json.dumps(dict(row)), status=200, content_type="application/json")
+
 
 
 @app.route('/add', methods=["POST"])
@@ -20,24 +31,24 @@ def add():
     db.session.commit()
     return app.response_class(response=json.dumps(estudante.to_dict()), status=200, content_type="application/json")
 
-@app.route("/edit/<int:id>", methods=["GET","POST"])
+@app.route("/edit/<int:id>", methods=["PUT","POST"])
 def edite(id):
     estudante = Estudante.query.get(id)
-    if request.method == "POST":
-        estudante.nome = request.form['nome']
-        estudante.idade = request.form['idade']
-        db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('edit.html', estudante=estudante)
+    estudante.nome = request.form['nome']
+    estudante.idade = request.form['idade']
+    db.session.commit()
+    return Response(response=json.dumps(estudante.to_dict()), status=200, content_type="applicatio/json")
 
 
 
-@app.route('/delete/<int:id>')
+
+@app.route('/delete/<int:id>', methods=['GET', 'DELETE'])
 def delete(id):
     estudante = Estudante.query.get(id)
     db.session.delete(estudante)
     db.session.commit()
     return redirect(url_for('index'))
+
 
 if __name__=='__main__':
     db.init_app(app=app)
