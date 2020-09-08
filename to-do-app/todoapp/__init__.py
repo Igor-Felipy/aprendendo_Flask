@@ -6,7 +6,7 @@ from .extensions import mongo
 def create_app():
     app = Flask(__name__)
 
-    app.config["MONGO_URI"] = "mongodb+srv://123456:en69SgL9zT3Aiyv@cluster0.gwasn.mongodb.net/mydb?retryWrites=true&w=majority"
+    app.config["MONGO_URI"] = "mongodb+srv://admin:xKZJzwwyVpuWmMbi@cluster0.gwasn.mongodb.net/mydb?retryWrites=true&w=majority"
 
     app.register_blueprint(main)
 
